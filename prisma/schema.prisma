@@ -1,0 +1,130 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String            @id @default(uuid())
+  name            String
+  email           String            @unique
+  password        String
+  phone           String
+  cpf             String
+  addressUser     AddressToUser[]
+  acessUserStudio AcessUserStudio[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  createdStudios Studio[] @relation("createdUser")
+  updatedStudios Studio[] @relation("updatedUser")
+
+  addressCreated Address[] @relation("createdUser")
+  addressUpdated Address[] @relation("updatedUser")
+
+  @@map("usuarios")
+}
+
+model Studio {
+  id              String            @id @default(uuid())
+  name            String
+  cnpj            String?
+  phone           String?
+  email           String?
+  logo            String?
+  adressStudio    AdressToStudio[]
+  acessUserStudio AcessUserStudio[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  createdUserId String
+  createdUser   User   @relation("createdUser", fields: [createdUserId], references: [id])
+
+  updatedUserId String?
+  updatedUser   User?   @relation("updatedUser", fields: [updatedUserId], references: [id])
+
+  @@map("estudios")
+}
+
+model Role {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  acessUserStudio AcessUserStudio[]
+
+  @@map("roles")
+}
+
+model AcessUserStudio {
+  id Int @id @default(autoincrement())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  studiId String
+  studio  Studio @relation(fields: [studiId], references: [id])
+
+  roleId Int
+  role   Role @relation(fields: [roleId], references: [id])
+
+  @@map("acessUser")
+}
+
+model Address {
+  id           Int              @id @default(autoincrement())
+  cep          String
+  rua          String
+  numero       String
+  bairro       String
+  cidade       String
+  estado       String
+  complemento  String?
+  principal    Boolean          @default(false)
+  addressUser  AddressToUser[]
+  adressStudio AdressToStudio[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  createdUserId String
+  createdUser   User   @relation("createdUser", fields: [createdUserId], references: [id])
+
+  updatedUserId String?
+  updatedUser   User?   @relation("updatedUser", fields: [updatedUserId], references: [id])
+
+  @@map("enderecos")
+}
+
+model AddressToUser {
+  id Int @id @default(autoincrement())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  addressId Int
+  adress    Address @relation(fields: [addressId], references: [id])
+
+  @@map("enderecosUsuario")
+}
+
+model AdressToStudio {
+  id Int @id @default(autoincrement())
+
+  studioId  String
+  studio    Studio  @relation(fields: [studioId], references: [id])
+  addressId Int
+  address   Address @relation(fields: [addressId], references: [id])
+
+  @@map("enderecoEstudio")
+}
