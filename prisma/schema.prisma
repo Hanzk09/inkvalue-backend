@@ -19,7 +19,8 @@ model User {
   email           String            @unique
   password        String
   phone           String
-  cpf             String
+  cpf             String            @unique
+  birthdate       DateTime
   addressUser     AddressToUser[]
   acessUserStudio AcessUserStudio[]
 
