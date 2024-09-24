@@ -21,7 +21,10 @@ export class TransformInterceptor<T>
     context: ExecutionContext,
     next: CallHandler<T>,
   ): Observable<Response<T>> | Promise<Observable<Response<T>>> {
-    Logger.log(context.switchToHttp().getRequest().path);
+    Logger.log(
+      context.switchToHttp().getRequest().path,
+      context.switchToHttp().getRequest().method,
+    );
     return next.handle().pipe(
       map((data) => ({
         status: context.switchToHttp().getResponse().statusCode,
